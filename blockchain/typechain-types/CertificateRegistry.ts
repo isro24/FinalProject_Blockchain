@@ -47,16 +47,24 @@ export interface CertificateRegistryInterface extends Interface {
     nameOrSignature:
       | "admin"
       | "certificates"
+      | "getAllVerificationCodes"
       | "getCertificate"
       | "issueCertificate"
+      | "revokeCertificate"
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "CertificateIssued"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "CertificateIssued" | "CertificateRevoked"
+  ): EventFragment;
 
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "certificates",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAllVerificationCodes",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getCertificate",
@@ -66,10 +74,18 @@ export interface CertificateRegistryInterface extends Interface {
     functionFragment: "issueCertificate",
     values: [string, string, string, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "revokeCertificate",
+    values: [string]
+  ): string;
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "certificates",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAllVerificationCodes",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -78,6 +94,10 @@ export interface CertificateRegistryInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "issueCertificate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeCertificate",
     data: BytesLike
   ): Result;
 }
@@ -97,6 +117,18 @@ export namespace CertificateIssuedEvent {
     verificationCode: string;
     studentName: string;
     ukmName: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace CertificateRevokedEvent {
+  export type InputTuple = [verificationCode: string];
+  export type OutputTuple = [verificationCode: string];
+  export interface OutputObject {
+    verificationCode: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -162,6 +194,8 @@ export interface CertificateRegistry extends BaseContract {
     "view"
   >;
 
+  getAllVerificationCodes: TypedContractMethod<[], [string[]], "view">;
+
   getCertificate: TypedContractMethod<
     [_verificationCode: string],
     [CertificateRegistry.CertStructOutput],
@@ -175,6 +209,12 @@ export interface CertificateRegistry extends BaseContract {
       _ukmName: string,
       _eventDate: string
     ],
+    [void],
+    "nonpayable"
+  >;
+
+  revokeCertificate: TypedContractMethod<
+    [_verificationCode: string],
     [void],
     "nonpayable"
   >;
@@ -201,6 +241,9 @@ export interface CertificateRegistry extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getAllVerificationCodes"
+  ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
     nameOrSignature: "getCertificate"
   ): TypedContractMethod<
     [_verificationCode: string],
@@ -219,6 +262,9 @@ export interface CertificateRegistry extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "revokeCertificate"
+  ): TypedContractMethod<[_verificationCode: string], [void], "nonpayable">;
 
   getEvent(
     key: "CertificateIssued"
@@ -226,6 +272,13 @@ export interface CertificateRegistry extends BaseContract {
     CertificateIssuedEvent.InputTuple,
     CertificateIssuedEvent.OutputTuple,
     CertificateIssuedEvent.OutputObject
+  >;
+  getEvent(
+    key: "CertificateRevoked"
+  ): TypedContractEvent<
+    CertificateRevokedEvent.InputTuple,
+    CertificateRevokedEvent.OutputTuple,
+    CertificateRevokedEvent.OutputObject
   >;
 
   filters: {
@@ -238,6 +291,17 @@ export interface CertificateRegistry extends BaseContract {
       CertificateIssuedEvent.InputTuple,
       CertificateIssuedEvent.OutputTuple,
       CertificateIssuedEvent.OutputObject
+    >;
+
+    "CertificateRevoked(string)": TypedContractEvent<
+      CertificateRevokedEvent.InputTuple,
+      CertificateRevokedEvent.OutputTuple,
+      CertificateRevokedEvent.OutputObject
+    >;
+    CertificateRevoked: TypedContractEvent<
+      CertificateRevokedEvent.InputTuple,
+      CertificateRevokedEvent.OutputTuple,
+      CertificateRevokedEvent.OutputObject
     >;
   };
 }

@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const Artifact = require('../../CertificateRegistry.json'); 
 
-const CONTRACT_ADDRESS = "0x931068f81194533Fd5B1Fe902F4A8e10f2bdA8eB";
+const CONTRACT_ADDRESS = "0x9F5bEd71Ccd8aF5A154656aCeae28Fa2778F16B2";
 const RPC_URL = process.env.SEPOLIA_URL;
 
 if (!RPC_URL) {

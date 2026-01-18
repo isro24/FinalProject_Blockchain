@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { connectWallet, issueCertificateOnChain } from '../services/blockchain';
+import { connectWallet, issueCertificateOnChain, revokeCertificateOnChain } from '../services/blockchain';
 
 export function useCertificateForm() {
-  const [form, setForm] = useState({ kode: '', nama: '', ukm: '', tanggal: '' });
+  const [form, setForm] = useState({ kode: '', nama: '', ukm: '', tanggal: '', kodeRevoke: '' });
   const [wallet, setWallet] = useState(null);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
@@ -46,6 +46,25 @@ export function useCertificateForm() {
     }
   };
 
+  const handleRevoke = async (kode) => {
+    if (!wallet) return alert("Konek wallet dulu!");
+    if (!kode) return alert("Kode sertifikat wajib diisi!");
+    try {
+      setLoading(true);
+      setStatus("⏳ Proses revoke di Metamask...");
+      const tx = await revokeCertificateOnChain(kode);
+      setStatus("⏳ Transaksi dikirim! Menunggu konfirmasi jaringan...");
+      await tx.wait();
+      setStatus(`✅ Sertifikat berhasil direvoke! Hash: ${tx.hash}`);
+    } catch (err) {
+      console.error(err);
+      const errorMsg = err.reason || err.message || "Terjadi kesalahan";
+      setStatus("❌ Gagal revoke: " + errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     form,
     wallet,
@@ -53,6 +72,7 @@ export function useCertificateForm() {
     loading,
     handleChange,
     handleConnect,
-    handleSubmit
+    handleSubmit,
+    handleRevoke
   };
 }

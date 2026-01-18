@@ -1,36 +1,40 @@
 import { Routes, Route } from 'react-router-dom';
+import Navbar from './components/layout/Navbar';
 import PublicVerifySection from './components/features/PublicVerifySection';
 import AdminSection from './components/features/AdminSection';
+import AdminAllCertificates from './components/features/AdminCertifivateList'; // Pastikan path import ini benar sesuai nama file
 
 function App() {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      
-      <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-        
-        <div className="bg-blue-600 px-6 py-8 text-center border-b border-blue-700">
-          <h1 className="text-3xl font-extrabold text-white tracking-wide drop-shadow-md">
-            🎓 Portal Sertifikat
-          </h1>
-          <p className="text-blue-100 text-sm mt-2 opacity-90">
-            Sistem Validasi & Penerbitan Berbasis Blockchain
-          </p>
-        </div>
+    <Routes>
+      <Route 
+        path="/" 
+        element={<PublicVerifySection />} 
+      />
 
-        <div className="p-8">
-          <Routes>
-            <Route path="/" element={<PublicVerifySection />} />
-            <Route path="/admin" element={<AdminSection />} />
-          </Routes>
-        </div>
+      <Route
+        path="/admin/*"
+        element={
+          <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+            
+            <Navbar />
 
-      </div>
-      
-      <div className="mt-8 text-center text-xs text-gray-400">
-        &copy; 2026 Universitas Muhammadiyah Yogyakarta
-      </div>
+            <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full">
+              <Routes>
+                <Route path="" element={<AdminSection />} />
+                <Route path="all" element={<AdminAllCertificates />} />
+              </Routes>
+            </main>
 
-    </div>
+            <footer className="text-center text-xs text-slate-400 py-6 border-t border-slate-200 bg-white">
+              <p>© 2026 Universitas Muhammadiyah Yogyakarta</p>
+              <p className="mt-1">Blockchain Validator System</p>
+            </footer>
+            
+          </div>
+        }
+      />
+    </Routes>
   );
 }
 
